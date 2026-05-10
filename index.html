@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neural • AI Assistant</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .chat-container { scrollbar-width: thin; }
+        .message { max-width: 75%; }
+        .typing { animation: pulse 1.5s infinite; }
+    </style>
+</head>
+<body class="bg-zinc-950 text-white">
+
+<div class="flex h-screen">
+
+    <!-- Sidebar -->
+    <div class="w-72 bg-zinc-900 border-r border-zinc-800 flex flex-col">
+        <div class="p-5">
+            <button onclick="newChat()" 
+                    class="w-full bg-white text-black hover:bg-gray-200 py-3 rounded-2xl font-semibold flex items-center justify-center gap-2">
+                <i class="fa-solid fa-plus"></i> New Chat
+            </button>
+        </div>
+        
+        <div class="px-5 text-xs text-gray-400 font-medium mb-3">Recent</div>
+        <div class="flex-1 overflow-auto px-3 space-y-1">
+            <div class="px-5 py-3 hover:bg-zinc-800 rounded-2xl cursor-pointer">How to start freelancing in 2026</div>
+            <div class="px-5 py-3 hover:bg-zinc-800 rounded-2xl cursor-pointer">Best smartphone under 30k</div>
+            <div class="px-5 py-3 hover:bg-zinc-800 rounded-2xl cursor-pointer">Write a love letter in Hindi</div>
+        </div>
+
+        <div class="p-5 border-t border-zinc-800">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-gradient-to-br from-purple-500 to-cyan-400 rounded-2xl flex items-center justify-center font-bold">N</div>
+                <div>
+                    <div class="font-medium">Neural AI</div>
+                    <div class="text-xs text-emerald-400">Online • GPT-4o</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Chat Area -->
+    <div class="flex-1 flex flex-col">
+        
+        <!-- Header -->
+        <div class="h-16 border-b border-zinc-800 flex items-center px-8 justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-400 rounded-2xl flex items-center justify-center">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h1 class="font-semibold">Neural Assistant</h1>
+                    <p class="text-xs text-emerald-400">Always ready to help</p>
+                </div>
+            </div>
+            <button onclick="clearChat()" class="text-gray-400 hover:text-white">
+                <i class="fa-solid fa-trash"></i>
+            </button>
+        </div>
+
+        <!-- Messages -->
+        <div id="chat-messages" class="flex-1 overflow-auto p-8 chat-container space-y-8 bg-zinc-950">
+            <!-- Welcome Message -->
+            <div class="max-w-2xl mx-auto text-center mt-12">
+                <h2 class="text-4xl font-bold mb-3">Hello, I'm Neural 👋</h2>
+                <p class="text-gray-400">Ask me anything. I'm here to help you with ideas, coding, fashion, studies, or just a good conversation.</p>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div class="p-6 border-t border-zinc-800 bg-zinc-900">
+            <div class="max-w-3xl mx-auto">
+                <div class="relative">
+                    <input id="user-input" 
+                           type="text" 
+                           placeholder="Message Neural..."
+                           class="w-full bg-zinc-800 border border-zinc-700 rounded-3xl py-5 px-7 pr-16 focus:outline-none focus:border-cyan-400 text-lg"
+                           onkeypress="if(event.key === 'Enter') sendMessage()">
+                    <button onclick="sendMessage()" 
+                            class="absolute right-3 top-1/2 -translate-y-1/2 bg-cyan-400 hover:bg-cyan-300 text-black w-11 h-11 rounded-2xl flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+                <p class="text-center text-xs text-gray-500 mt-4">Neural can make mistakes. Consider checking important info.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Predefined smart replies for demo
+const replies = [
+    "That's an interesting question! Let me think...",
+    "Great point! Here's my take on it:",
+    "I love this topic. Here's what I recommend:",
+    "According to latest trends in 2026, here's the best approach:",
+    "Haha, I see what you did there! 😄 Let me help you with that."
+];
+
+const detailedResponses = {
+    "hi": "Hello! Kaise ho aaj? Kya help chahiye?",
+    "hello": "Hey there! Kya haal hai?",
+    "fashion": "Fashion ke liye best choice abhi minimal & oversized silhouettes hain. Kya style try karna chahte ho?",
+    "price": "Budget kitna hai? Main aapke budget mein best options suggest kar dunga.",
+    "watch": "Smartwatch mein abhi Neural Ultra Series sabse best hai performance aur battery dono mein.",
+    "shirt": "Oxford cotton shirts abhi sabse trending hain. Light colors mein white aur beige best chal rahe hain."
+};
+
+function sendMessage() {
+    const input = document.getElementById('user-input');
+    const message = input.value.trim();
+    
+    if (!message) return;
+
+    // Add user message
+    addMessage(message, 'user');
+    input.value = '';
+
+    // Show typing indicator
+    showTypingIndicator();
+
+    // Simulate AI thinking time
+    setTimeout(() => {
+        removeTypingIndicator();
+        
+        let reply = "I'm here to help! What else would you like to know?";
+        
+        // Smart reply matching
+        const lowerMsg = message.toLowerCase();
+        
+        if (detailedResponses[lowerMsg]) {
+            reply = detailedResponses[lowerMsg];
+        } else if (lowerMsg.includes("shirt") || lowerMsg.includes("jeans")) {
+            reply = "Stylish choice! Slim fit shirts ke saath dark jeans ka combination abhi sabse popular hai.";
+        } else if (lowerMsg.includes("watch") || lowerMsg.includes("time")) {
+            reply = "Smartwatch recommend karun? Abhi Neural Orbit Series best reviews la raha hai.";
+        } else if (lowerMsg.includes("how are you")) {
+            reply = "I'm doing fantastic! Thanks for asking 😊";
+        } else {
+            // Random good reply
+            reply = replies[Math.floor(Math.random() * replies.length)] + 
+                    "<br><br>" + 
+                    "This is a demo. In real AI, I would give much more detailed and personalized answers.";
+        }
+
+        addMessage(reply, 'ai');
+    }, 1200);
+}
+
+function addMessage(text, sender) {
+    const chat = document.getElementById('chat-messages');
+    const messageDiv = document.createElement('div');
+    
+    if (sender === 'user') {
+        messageDiv.className = "flex justify-end";
+        messageDiv.innerHTML = `
+            <div class="bg-cyan-500 text-black px-6 py-4 rounded-3xl rounded-tr-none message">
+                ${text}
+            </div>
+        `;
+    } else {
+        messageDiv.className = "flex justify-start";
+        messageDiv.innerHTML = `
+            <div class="flex gap-3 max-w-[75%]">
+                <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-400 rounded-2xl flex-shrink-0 flex items-center justify-center text-sm font-bold">N</div>
+                <div class="bg-zinc-800 px-6 py-4 rounded-3xl rounded-tl-none message">
+                    ${text}
+                </div>
+            </div>
+        `;
+    }
+    
+    chat.appendChild(messageDiv);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function showTypingIndicator() {
+    const chat = document.getElementById('chat-messages');
+    const typing = document.createElement('div');
+    typing.id = 'typing-indicator';
+    typing.className = "flex justify-start";
+    typing.innerHTML = `
+        <div class="flex gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-cyan-400 rounded-2xl flex items-center justify-center text-sm font-bold">N</div>
+            <div class="bg-zinc-800 px-6 py-4 rounded-3xl rounded-tl-none typing">
+                <span class="inline-block w-2 h-2 bg-gray-400 rounded-full mx-0.5 animate-bounce"></span>
+                <span class="inline-block w-2 h-2 bg-gray-400 rounded-full mx-0.5 animate-bounce delay-150"></span>
+                <span class="inline-block w-2 h-2 bg-gray-400 rounded-full mx-0.5 animate-bounce delay-300"></span>
+            </div>
+        </div>
+    `;
+    chat.appendChild(typing);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function removeTypingIndicator() {
+    const typing = document.getElementById('typing-indicator');
+    if (typing) typing.remove();
+}
+
+function newChat() {
+    document.getElementById('chat-messages').innerHTML = `
+        <div class="max-w-2xl mx-auto text-center mt-12">
+            <h2 class="text-4xl font-bold mb-3">New Conversation Started</h2>
+            <p class="text-gray-400">Kya baat kare aaj?</p>
+        </div>
+    `;
+}
+
+function clearChat() {
+    if (confirm("Pura chat clear karna hai?")) {
+        newChat();
+    }
+}
+
+// Allow sending with button click too
+document.getElementById('user-input').focus();
+</script>
+
+</body>
+</html>
